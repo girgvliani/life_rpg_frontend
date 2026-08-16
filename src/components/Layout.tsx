@@ -22,6 +22,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <NavLink to="/todos">Todos</NavLink>
           <NavLink to="/projects">Projects</NavLink>
           <NavLink to="/milestones">Milestones</NavLink>
+          <NavLink to="/profile">Profile</NavLink>
         </div>
         <div className="nav-user">
           <span>{user?.email}</span>

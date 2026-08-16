@@ -9,6 +9,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { TodosPage } from "./pages/TodosPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { MilestonesPage } from "./pages/MilestonesPage";
+import { ProfilePage } from "./pages/ProfilePage";
 
 function Protected({ children }: { children: ReactNode }) {
   return (
@@ -54,6 +55,14 @@ export default function App() {
             element={
               <Protected>
                 <MilestonesPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <Protected>
+                <ProfilePage />
               </Protected>
             }
           />

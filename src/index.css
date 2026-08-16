@@ -178,6 +178,43 @@ select {
   color: var(--text-secondary);
 }
 
+.profile-hero {
+  text-align: center;
+}
+
+.profile-email {
+  color: var(--text-secondary);
+  margin-top: -0.5rem;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.profile-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: #0f1220;
+  border: 1px solid #2a2f3f;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.profile-stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.profile-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
 .inline-form {
   display: flex;
   flex-wrap: wrap;
