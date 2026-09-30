@@ -1,15 +1,18 @@
 import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { LevelProvider } from "./context/LevelContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
-import { DashboardPage } from "./pages/DashboardPage";
-import { TodosPage } from "./pages/TodosPage";
-import { ProjectsPage } from "./pages/ProjectsPage";
-import { MilestonesPage } from "./pages/MilestonesPage";
-import { ProfilePage } from "./pages/ProfilePage";
+import { CharacterPage } from "./pages/CharacterPage";
+import { CheckInPage } from "./pages/CheckInPage";
+import { GoalsPage } from "./pages/GoalsPage";
+import { MealsPage } from "./pages/MealsPage";
+import { QuestsPage } from "./pages/QuestsPage";
+import { SettingsPage } from "./pages/SettingsPage";
+import { StreaksPage } from "./pages/StreaksPage";
 
 function Protected({ children }: { children: ReactNode }) {
   return (
@@ -23,51 +26,25 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/"
-            element={
-              <Protected>
-                <DashboardPage />
-              </Protected>
-            }
-          />
-          <Route
-            path="/todos"
-            element={
-              <Protected>
-                <TodosPage />
-              </Protected>
-            }
-          />
-          <Route
-            path="/projects"
-            element={
-              <Protected>
-                <ProjectsPage />
-              </Protected>
-            }
-          />
-          <Route
-            path="/milestones"
-            element={
-              <Protected>
-                <MilestonesPage />
-              </Protected>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <Protected>
-                <ProfilePage />
-              </Protected>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <LevelProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<Protected><CharacterPage /></Protected>} />
+            <Route path="/streaks" element={<Protected><StreaksPage /></Protected>} />
+            <Route path="/check-in" element={<Protected><CheckInPage /></Protected>} />
+            <Route path="/meals" element={<Protected><MealsPage /></Protected>} />
+            <Route path="/goals" element={<Protected><GoalsPage /></Protected>} />
+            <Route path="/quests" element={<Protected><QuestsPage /></Protected>} />
+            <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
+            {/* Old addresses */}
+            <Route path="/todos" element={<Navigate to="/quests?tab=todos" replace />} />
+            <Route path="/projects" element={<Navigate to="/quests?tab=projects" replace />} />
+            <Route path="/milestones" element={<Navigate to="/quests?tab=milestones" replace />} />
+            <Route path="/profile" element={<Navigate to="/settings" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </LevelProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -27,7 +27,7 @@ export function LoginPage() {
 
   return (
     <div className="auth-page">
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className="auth-form card" onSubmit={handleSubmit}>
         <h1>⚔️ Life RPG</h1>
         <label>
           Email
