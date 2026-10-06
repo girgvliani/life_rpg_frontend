@@ -628,7 +628,7 @@ button.chip {
 @media (max-width: 980px) {
   .split-left,
   .split-right {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1035,4 +1035,10 @@ label.button.upload {
   border-radius: var(--radius);
   background: var(--surface);
   border: 1px solid var(--accent);
+}
+
+/* The Baby Step you're on */
+.card-current {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }

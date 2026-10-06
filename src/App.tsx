@@ -17,6 +17,7 @@ import { GoalsPage } from "./pages/GoalsPage";
 import { MealsPage } from "./pages/MealsPage";
 import { MilestonesPage } from "./pages/MilestonesPage";
 import { PlanPage } from "./pages/PlanPage";
+import { MoneyPage } from "./pages/MoneyPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { QuestsPage } from "./pages/QuestsPage";
 import { SkillsPage } from "./pages/SkillsPage";
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="/meals" element={<Protected><MealsPage /></Protected>} />
             <Route path="/goals" element={<Protected><GoalsPage /></Protected>} />
             <Route path="/plan" element={<Protected><PlanPage /></Protected>} />
+            <Route path="/money" element={<Protected><MoneyPage /></Protected>} />
             <Route path="/quests" element={<Protected><QuestsPage /></Protected>} />
             <Route path="/milestones" element={<Protected><MilestonesPage /></Protected>} />
             <Route path="/projects" element={<Protected><ProjectsPage /></Protected>} />

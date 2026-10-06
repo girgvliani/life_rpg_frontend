@@ -186,6 +186,8 @@ export interface Goal {
 
 export interface Profile {
   display_name: string | null;
+  nickname: string | null;
+  public_name: "name" | "nickname" | "code"; // what friends and the leaderboard see
   currency: string;
   timezone: string;
   pushup_target: number;
@@ -409,4 +411,44 @@ export interface Level {
   today: { reason: string; xp: number }[];
   sources: Record<string, number>;
   history: { date: string; xp: number }[];
+}
+
+// ---- Dave Ramsey's Baby Steps
+
+export interface BabyStepDebt {
+  name: string;
+  balance: number;
+  original: number;
+}
+
+export interface BabyStepsPlan {
+  starter_target: number;
+  saved: number;
+  monthly_expenses: number | null;
+  months: number;
+  debts: BabyStepDebt[];
+  invest_percent: number;
+  kids: boolean;
+  college_saved: number;
+  college_target: number | null;
+  home: "renting" | "mortgage" | "owned";
+  mortgage_balance: number | null;
+  mortgage_original: number | null;
+  giving: boolean;
+}
+
+export interface BabySteps {
+  currency: string;
+  current: number | null;
+  score: number | null; // null until anything is filled in
+  plan: BabyStepsPlan;
+  steps: {
+    step: number;
+    title: string;
+    detail: string;
+    progress: number | null | "n/a"; // "n/a": doesn't apply (no kids, renting)
+    done: boolean;
+    current: boolean;
+    note: string;
+  }[];
 }

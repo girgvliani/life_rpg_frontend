@@ -185,7 +185,7 @@ function SharingCard({ initial, onError, onSaved }: {
           <input type="checkbox" role="switch" checked={sharing[key]} onChange={(e) => flip(key, e.target.checked)} />
         </label>
       ))}
-      <span className="muted small">All off = friends see only your name.</span>
+      <span className="muted small">All off = friends see only your name. Which name (real name, nickname or just your code) is set in <a href="/settings">Settings</a>.</span>
       <label className="row switch-row">
         <div className="grow">
           <strong>Show me on the global leaderboard</strong>

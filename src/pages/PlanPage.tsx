@@ -1,16 +1,19 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { getGoals, getLifeAreas, getMilestones, getProjects, getTodos } from "../api/endpoints";
+import { getBabySteps, getGoals, getLifeAreas, getMilestones, getProjects, getTodos } from "../api/endpoints";
 import { Card, Loaded, Meter, PageHeader } from "../components/ui";
 import { isoDay, relative } from "../lib/dates";
 import { useLoad } from "../lib/load";
+import type { BabySteps } from "../api/types";
 import { GOAL_PRESETS, MILESTONE_IDEAS, XP_PER_LEVEL, questXp } from "../lib/plan";
 
 /** One page with everything you're working toward; each card opens its full page. */
 export function PlanPage() {
   const data = useLoad(async () => {
-    const [goals, milestones, todos, projects, skills] = await Promise.all([getGoals(), getMilestones(), getTodos(), getProjects(), getLifeAreas()]);
-    return { goals, milestones, todos, projects, skills };
+    const [goals, milestones, todos, projects, skills, babySteps] = await Promise.all([
+      getGoals(), getMilestones(), getTodos(), getProjects(), getLifeAreas(), getBabySteps().catch(() => null),
+    ]);
+    return { goals, milestones, todos, projects, skills, babySteps };
   });
   const today = isoDay();
 
@@ -18,7 +21,7 @@ export function PlanPage() {
     <div className="stack">
       <PageHeader title="PLAN" subtitle="Everything you're working toward. Click a card to manage it." />
       <Loaded load={data}>
-        {({ goals, milestones, todos, projects, skills }) => {
+        {({ goals, milestones, todos, projects, skills, babySteps }) => {
           const activeGoals = goals.filter((g) => !g.achieved);
           const openTodos = todos.filter((t) => !t.completed);
           const overdue = openTodos.filter((t) => t.deadline < today).length;
@@ -58,6 +61,14 @@ export function PlanPage() {
                   <div key={s.id} className="stack" style={{ gap: "0.25rem" }}>
                     <Preview text={s.name} value={`LV ${s.level}`} />
                     <Meter value={s.xp % XP_PER_LEVEL} max={XP_PER_LEVEL} color="var(--accent-deep)" />
+                  </div>
+                ))}
+              </PlanCard>
+              <PlanCard icon="💰" title="Baby Steps" to="/money" summary={babyStepsSummary(babySteps)}>
+                {babySteps?.steps.filter((s) => s.current).map((s) => (
+                  <div key={s.step} className="stack" style={{ gap: "0.25rem" }}>
+                    <Preview text={s.title} value={s.note} />
+                    {s.progress !== "n/a" && <Meter value={s.progress ?? 0} />}
                   </div>
                 ))}
               </PlanCard>
@@ -105,4 +116,9 @@ function Ideas({ items }: { items: string[] }) {
       {items.slice(0, 4).map((i) => <span key={i} className="chip">{i}</span>)}
     </div>
   );
+}
+
+function babyStepsSummary(steps: BabySteps | null) {
+  if (!steps || steps.score === null) return "Dave Ramsey's 7 steps: fill in your numbers";
+  return steps.current === null ? "All 7 steps done" : `On step ${steps.current} of 7`;
 }

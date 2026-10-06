@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { createDevice, getDevices, getIncome, getProfile, revokeDevice, updateIncome, updateProfile } from "../api/endpoints";
 import type { Device, Income, Profile } from "../api/types";
+import { Choice } from "../components/forms";
 import { Card, Loaded, PageHeader } from "../components/ui";
 import { errorText, useLoad } from "../lib/load";
 
@@ -35,11 +36,13 @@ export function SettingsPage() {
 function ProfileForm({ profile, income, onSaved }: { profile: Profile; income: Income; onSaved: () => void }) {
   const [form, setForm] = useState<Record<string, string>>({});
   const [sex, setSex] = useState(profile.sex);
+  const [publicName, setPublicName] = useState(profile.public_name);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   useEffect(() => {
     setForm({
       display_name: profile.display_name ?? "",
+      nickname: profile.nickname ?? "",
       currency: profile.currency,
       pushup_target: String(profile.pushup_target),
       steps_target: String(profile.steps_target),
@@ -50,12 +53,13 @@ function ProfileForm({ profile, income, onSaved }: { profile: Profile; income: I
       current_month_earnings: String(income.current_month_earnings),
     });
     setSex(profile.sex);
+    setPublicName(profile.public_name);
   }, [profile, income]);
 
   const field = (key: string, label: string, hint?: string) => (
     <label className="field">
       {label}
-      <input value={form[key] ?? ""} onChange={(e) => setForm({ ...form, [key]: e.target.value })} inputMode={key === "display_name" || key === "currency" ? "text" : "decimal"} />
+      <input value={form[key] ?? ""} onChange={(e) => setForm({ ...form, [key]: e.target.value })} inputMode={["display_name", "nickname", "currency"].includes(key) ? "text" : "decimal"} />
       {hint && <span className="hint">{hint}</span>}
     </label>
   );
@@ -67,6 +71,8 @@ function ProfileForm({ profile, income, onSaved }: { profile: Profile; income: I
     try {
       await updateProfile({
         display_name: form.display_name || undefined,
+        nickname: form.nickname.trim() || undefined,
+        public_name: publicName,
         currency: form.currency.toUpperCase(),
         pushup_target: number("pushup_target"),
         steps_target: number("steps_target"),
@@ -91,6 +97,11 @@ function ProfileForm({ profile, income, onSaved }: { profile: Profile; income: I
       <div className="grid grid-3">
         <Card title="You">
           {field("display_name", "Name on your card")}
+          {field("nickname", "Nickname")}
+          <div className="stack" style={{ gap: "0.3rem" }}>
+            <span className="small muted">Friends and the leaderboard see you as</span>
+            <Choice options={[["nickname", "Nickname"], ["name", "Your name"], ["code", "Just your code"]]} value={publicName} onChange={setPublicName} />
+          </div>
           {field("currency", "Currency", "GEL, USD, EUR…")}
           <span className="muted small">Timezone: {profile.timezone}</span>
         </Card>

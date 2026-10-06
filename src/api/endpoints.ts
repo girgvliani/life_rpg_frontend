@@ -1,5 +1,7 @@
 import { ApiError, apiFetch } from "./client";
 import type {
+  BabySteps,
+  BabyStepsPlan,
   CharacterDay,
   CharacterSheet,
   Customization,
@@ -249,3 +251,10 @@ export const createDevice = (name: string) =>
 export const revokeDevice = (id: number) => apiFetch<void>(`/devices/${id}`, { method: "DELETE" });
 
 export const getLevel = () => apiFetch<Level>("/stats/level");
+
+// ---- Dave Ramsey's Baby Steps
+
+export const getBabySteps = () => apiFetch<BabySteps>("/money/baby-steps");
+
+export const saveBabySteps = (plan: Partial<BabyStepsPlan>) =>
+  apiFetch<BabySteps>("/money/baby-steps", { method: "PUT", body: JSON.stringify(plan) });

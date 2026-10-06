@@ -19,6 +19,7 @@ const NAV: { to: string; icon: string; label: string; sub?: boolean; desktopOnly
   { to: "/milestones", icon: "🏔️", label: "Milestones", sub: true },
   { to: "/projects", icon: "💼", label: "Projects", sub: true },
   { to: "/skills", icon: "🌳", label: "Skills", sub: true },
+  { to: "/money", icon: "💰", label: "Baby Steps", sub: true },
   { to: "/friends", icon: "👥", label: "Friends" },
   { to: "/questionnaire", icon: "🧭", label: "Questionnaire", desktopOnly: true },
   { to: "/browsing", icon: "🌐", label: "Browsing", desktopOnly: true },
