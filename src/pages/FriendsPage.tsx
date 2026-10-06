@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { acceptFriend, addFriend, dropFriendRequest, getFriends, getLeaderboard, removeFriend, updateSharing } from "../api/endpoints";
-import type { FriendView, FriendsOverview } from "../api/types";
+import { acceptFriend, addFriend, dropFriendRequest, getFriends, getGlobalBoard, getLeaderboard, removeFriend, updateSharing } from "../api/endpoints";
+import type { FriendView, FriendsOverview, GlobalBoard, GlobalRow } from "../api/types";
 import { Card, Loaded, Meter, PageHeader } from "../components/ui";
 import { categoryIcon } from "../lib/categories";
 import { errorText, useLoad } from "../lib/load";
@@ -39,12 +39,13 @@ const BOARDS: Board[] = [
 /** Friends you choose, sharing only what you switch on, compared on a leaderboard and on weekly progress. */
 export function FriendsPage() {
   const data = useLoad(async () => {
-    const [overview, board] = await Promise.all([getFriends(), getLeaderboard()]);
-    return { overview, board };
+    const [overview, board, everyone] = await Promise.all([getFriends(), getLeaderboard(), getGlobalBoard().catch(() => null)]);
+    return { overview, board, everyone };
   });
   const [who, setWho] = useState("");
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [boardKey, setBoardKey] = useState("level");
+  const [showEveryone, setShowEveryone] = useState(true); // the leaderboard opens on everyone
 
   async function act(action: () => Promise<string | null>) {
     try {
@@ -70,7 +71,7 @@ export function FriendsPage() {
     <div className="stack">
       <PageHeader title="FRIENDS" subtitle="Compare with friends you choose. They only see what you switch on." />
       <Loaded load={data}>
-        {({ overview, board }) => {
+        {({ overview, board, everyone }) => {
           const metric = BOARDS.find((b) => b.key === boardKey)!;
           const ranked = board.filter((f) => metric.value(f) != null).sort((a, b) => metric.value(b)! - metric.value(a)!);
           const hidden = board.filter((f) => metric.value(f) == null);
@@ -78,6 +79,11 @@ export function FriendsPage() {
             <div className="grid split-left" style={{ alignItems: "start" }}>
               <div className="stack">
                 <div className="section-title">Leaderboard</div>
+                <div className="row" style={{ gap: "0.4rem" }}>
+                  <button className={`chip ${showEveryone ? "on" : ""}`} onClick={() => setShowEveryone(true)}>🌍 Everyone</button>
+                  <button className={`chip ${!showEveryone ? "on" : ""}`} onClick={() => setShowEveryone(false)}>👥 Friends</button>
+                </div>
+                {showEveryone && everyone ? <EveryoneBoard board={everyone} /> : <>
                 <div className="row wrap" style={{ gap: "0.4rem" }}>
                   {BOARDS.map((b) => (
                     <button key={b.key} className={`chip ${boardKey === b.key ? "on" : ""}`} onClick={() => setBoardKey(b.key)}>{b.label}</button>
@@ -102,6 +108,7 @@ export function FriendsPage() {
                     </div>
                   ))}
                 </Card>
+                </>}
 
                 {overview.friends.length === 0 && <Card><span className="muted">No friends yet. Share your code, or add theirs.</span></Card>}
                 <div className="grid grid-2" style={{ alignItems: "start" }}>
@@ -179,7 +186,45 @@ function SharingCard({ initial, onError, onSaved }: {
         </label>
       ))}
       <span className="muted small">All off = friends see only your name.</span>
+      <label className="row switch-row">
+        <div className="grow">
+          <strong>Show me on the global leaderboard</strong>
+          <div className="muted small">Everyone can see your name, level, title and XP there</div>
+        </div>
+        <input type="checkbox" role="switch" checked={sharing.leaderboard} onChange={(e) => flip("leaderboard", e.target.checked)} />
+      </label>
     </Card>
+  );
+}
+
+/** Everyone by XP: the top players, then your own place if you're further down (or hidden) */
+function EveryoneBoard({ board }: { board: GlobalBoard }) {
+  const inTop = board.top.some((r) => r.me);
+  return (
+    <Card>
+      <span className="muted small">{board.players} {board.players === 1 ? "player" : "players"} by level</span>
+      {board.top.map((r) => <EveryoneRow key={r.id} row={r} />)}
+      {!inTop && (
+        <>
+          <span className="muted">…</span>
+          <EveryoneRow row={board.you} />
+          {board.you.rank === null && <span className="muted small">You're hidden from everyone else; turn it on to take your place.</span>}
+        </>
+      )}
+    </Card>
+  );
+}
+
+function EveryoneRow({ row }: { row: GlobalRow }) {
+  return (
+    <div className="row">
+      <strong style={{ width: 36, color: "var(--text-muted)" }}>{row.rank === null ? "–" : ["🥇", "🥈", "🥉"][row.rank - 1] ?? row.rank}</strong>
+      <div className="grow">
+        <span style={{ fontWeight: row.me ? 800 : 400, color: row.me ? "var(--accent)" : undefined }}>{row.name}{row.me ? " (you)" : ""}</span>
+        <div className="muted small">{row.title} · {row.xp.toLocaleString("en-US")} XP</div>
+      </div>
+      <strong>LV {row.level}</strong>
+    </div>
   );
 }
 

@@ -338,9 +338,26 @@ export interface FriendRequest {
   code: string;
 }
 
+/** One player on the global leaderboard: name, level, title and XP only; rank is null when you're hidden */
+export interface GlobalRow {
+  id: number;
+  name: string;
+  level: number;
+  title: string;
+  xp: number;
+  me: boolean;
+  rank: number | null;
+}
+
+export interface GlobalBoard {
+  players: number;
+  top: GlobalRow[];
+  you: GlobalRow;
+}
+
 export interface FriendsOverview {
   code: string;
-  sharing: Record<"level" | "stats" | "streaks" | "goals", boolean>;
+  sharing: Record<"level" | "stats" | "streaks" | "goals" | "leaderboard", boolean>;
   friends: FriendView[];
   incoming: FriendRequest[];
   outgoing: FriendRequest[];

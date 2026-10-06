@@ -10,6 +10,7 @@ import type {
   FieldCatalog,
   FriendView,
   FriendsOverview,
+  GlobalBoard,
   Goal,
   Income,
   Level,
@@ -131,6 +132,9 @@ export const acceptFriend = (requestId: number) => apiFetch<unknown>(`/friends/r
 export const dropFriendRequest = (requestId: number) => apiFetch<void>(`/friends/requests/${requestId}`, { method: "DELETE" });
 
 export const removeFriend = (userId: number) => apiFetch<void>(`/friends/${userId}`, { method: "DELETE" });
+
+/** Everyone by level and XP: the top 50 and your own place */
+export const getGlobalBoard = () => apiFetch<GlobalBoard>("/friends/global");
 
 /** You (everything) and your friends (what they share) */
 export const getLeaderboard = () => apiFetch<FriendView[]>("/friends/leaderboard");
