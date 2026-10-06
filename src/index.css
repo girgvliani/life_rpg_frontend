@@ -1003,3 +1003,25 @@ button.stat-link {
   color: var(--bg);
   background: linear-gradient(135deg, var(--accent), var(--accent-deep));
 }
+
+/* Browsing: the upload button and the sites list */
+label.button.upload {
+  align-self: flex-start;
+  cursor: pointer;
+}
+.site-table {
+  display: flex;
+  flex-direction: column;
+  max-height: 560px;
+  overflow-y: auto;
+}
+.site-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-top: 1px solid var(--hairline);
+}
+.site-row select {
+  flex-shrink: 0;
+}

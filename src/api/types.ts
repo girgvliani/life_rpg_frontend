@@ -252,7 +252,7 @@ export interface LogField {
   label: string;
   unit: string;
   kind: "decimal" | "whole" | "yesno" | "time";
-  source: "phone" | "checkin" | "both";
+  source: "phone" | "checkin" | "both" | "import";
   feeds: string[]; // stat codes
 }
 

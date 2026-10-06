@@ -139,6 +139,17 @@ export const getGlobalBoard = () => apiFetch<GlobalBoard>("/friends/global");
 /** You (everything) and your friends (what they share) */
 export const getLeaderboard = () => apiFetch<FriendView[]>("/friends/leaderboard");
 
+// ---- Chrome history import (the history stays in the browser; only daily totals and site groups are sent)
+
+export const getSiteGroups = () => apiFetch<{ categories: string[]; groups: Record<string, string> }>("/browsing/groups");
+
+export const saveSiteGroups = (groups: Record<string, string>) =>
+  apiFetch<{ groups: Record<string, string> }>("/browsing/groups", { method: "PUT", body: JSON.stringify({ groups }) });
+
+/** Up to 31 days of totals per call, as the daily logs' "browser" section */
+export const saveBrowsingDays = (days: { date: string; browser: Record<string, number> }[]) =>
+  apiFetch<unknown>("/daily-logs/batch?source=auto", { method: "POST", body: JSON.stringify({ days }) });
+
 export const getIncome = () => apiFetch<Income>("/income");
 
 export const updateIncome = (payload: Partial<Income>) =>

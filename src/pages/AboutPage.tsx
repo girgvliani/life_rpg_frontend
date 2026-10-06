@@ -245,7 +245,7 @@ function FieldRow({ field, entry, names, open, onToggle, onChange, day }: {
 
   const source =
     typed !== undefined && phone !== undefined && typed !== phone ? `✍ you · 📱 phone said ${show(field, phone)}`
-      : typed !== undefined ? "✍ you" : phone !== undefined ? "📱 phone" : "not logged";
+      : typed !== undefined ? "✍ you" : phone !== undefined ? (field.source === "import" ? "💻 imported" : "📱 phone") : "not logged";
 
   async function run(action: () => Promise<unknown>) {
     setError(null);
