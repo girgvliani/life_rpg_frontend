@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { acceptFriend, addFriend, dropFriendRequest, getFriends, getGlobalBoard, getLeaderboard, removeFriend, updateSharing } from "../api/endpoints";
 import type { FriendView, FriendsOverview, GlobalBoard, GlobalRow } from "../api/types";
+import { Avatar, HexBadge } from "../components/Badges";
 import { Card, Loaded, Meter, PageHeader } from "../components/ui";
 import { categoryIcon } from "../lib/categories";
 import { errorText, useLoad } from "../lib/load";
@@ -9,6 +10,7 @@ import { rankColor } from "../lib/ranks";
 /** The four sharing switches: what a friend then sees */
 const SWITCHES: [keyof FriendsOverview["sharing"], string, string][] = [
   ["level", "Level, XP and rank", "Your LV, title, XP and XP this week"],
+  ["achievements", "Achievements", "How many badges you've earned and your latest ones"],
   ["stats", "Categories and stats", "TOTAL, the 6 categories and 9 stats, and how TOTAL moved this week"],
   ["streaks", "Streaks", "Your current and best streaks"],
   ["goals", "Goals and progress", "Goal names and how far along you are, never the numbers (like your weight)"],
@@ -219,6 +221,7 @@ function EveryoneRow({ row }: { row: GlobalRow }) {
   return (
     <div className="row">
       <strong style={{ width: 36, color: "var(--text-muted)" }}>{row.rank === null ? "–" : ["🥇", "🥈", "🥉"][row.rank - 1] ?? row.rank}</strong>
+      <Avatar path={row.photo_url} name={row.name} size={32} />
       <div className="grow">
         <span style={{ fontWeight: row.me ? 800 : 400, color: row.me ? "var(--accent)" : undefined }}>{row.name}{row.me ? " (you)" : ""}</span>
         <div className="muted small">{row.title} · {row.xp.toLocaleString("en-US")} XP</div>
@@ -229,10 +232,11 @@ function EveryoneRow({ row }: { row: GlobalRow }) {
 }
 
 function FriendCard({ friend, onRemove }: { friend: FriendView; onRemove: () => void }) {
-  const shares = friend.level || friend.stats || friend.streaks || friend.goals;
+  const shares = friend.level || friend.stats || friend.streaks || friend.goals || friend.achievements;
   return (
     <Card>
       <div className="row">
+        <Avatar path={friend.photo_url} name={friend.name} size={48} />
         <div className="grow">
           <strong style={{ fontSize: "1.1rem" }}>{friend.name}</strong>
           <div className="muted small friend-code-small">{friend.code}</div>
@@ -269,6 +273,14 @@ function FriendCard({ friend, onRemove }: { friend: FriendView; onRemove: () => 
           <Meter value={g.progress ?? 0} tone={g.achieved ? "good" : undefined} />
         </div>
       ))}
+      {friend.achievements && (
+        <div className="stack" style={{ gap: "0.35rem" }}>
+          <strong className="small">🏆 {friend.achievements.earned} of {friend.achievements.total} achievements</strong>
+          <div className="row wrap" style={{ gap: "0.3rem" }}>
+            {friend.achievements.badges.map((b) => <HexBadge key={b.key} icon={b.icon} tier={b.tier} earned size={38} label={b.name} />)}
+          </div>
+        </div>
+      )}
       {!shares && <span className="muted small">{friend.name} isn't sharing anything yet.</span>}
       <div className="row" style={{ justifyContent: "flex-end" }}>
         <button className="danger" onClick={onRemove}>Unfriend</button>

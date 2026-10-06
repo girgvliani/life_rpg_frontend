@@ -7,6 +7,7 @@ import { useLevel } from "../context/LevelContext";
 import { LevelHero } from "../components/LevelViews";
 import { NAME_LAYOUT, RadarChart, type RadarPoint } from "../components/RadarChart";
 import { Sparkline } from "../components/Sparkline";
+import { Avatar } from "../components/Badges";
 import { Card, Loaded, Meter, PageHeader } from "../components/ui";
 import { categoryBlurb, categoryIcon } from "../lib/categories";
 import { useLoad } from "../lib/load";
@@ -33,7 +34,7 @@ export function CharacterPage() {
   const level = useLevel();
   const sheet = useLoad(async () => {
     const [character, profile] = await Promise.all([getCharacter(), getProfile().catch(() => null)]);
-    return { character, name: profile?.display_name };
+    return { character, name: profile?.display_name, photo: profile?.photo_url, title: profile?.title };
   });
   const history = useLoad(() => getCharacterHistory(daysAgo(HISTORY_DAYS - 1)));
   const [highlight, setHighlight] = useState<string | null>(null);
@@ -51,7 +52,7 @@ export function CharacterPage() {
 
   return (
     <Loaded load={sheet}>
-      {({ character, name }) => {
+      {({ character, name, photo, title }) => {
         // A server from before the categories sends none: show the nine stats as before
         const categories = character.categories ?? [];
         const byCategory = categories.length > 0;
@@ -72,7 +73,8 @@ export function CharacterPage() {
           <div className="stack">
             <PageHeader
               title={`“${(name || user?.email.split("@")[0] || "Your character").toUpperCase()}”`}
-              subtitle={character.date}
+              before={<Avatar path={photo} name={name || user?.email || "?"} size={64} ring />}
+              subtitle={<>{title && <strong style={{ color: "var(--gold)" }}>🏆 {title} · </strong>}{character.date}</>}
               action={<button className="ghost" onClick={() => { sheet.reload(); history.reload(); level.refresh(); }}>↻ Refresh</button>}
             />
 

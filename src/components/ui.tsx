@@ -19,10 +19,11 @@ export function Card({ title, action, children, className = "" }: {
   );
 }
 
-export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: ReactNode; action?: ReactNode }) {
+export function PageHeader({ title, subtitle, action, before }: { title: string; subtitle?: ReactNode; action?: ReactNode; before?: ReactNode }) {
   return (
     <header className="page-header">
-      <div>
+      {before}
+      <div className="grow">
         <h1>{title}</h1>
         {subtitle && <div className="muted small">{subtitle}</div>}
       </div>

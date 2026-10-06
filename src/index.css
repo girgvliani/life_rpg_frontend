@@ -166,6 +166,7 @@ div.field input {
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto; /* short screens: the links scroll instead of falling off the bottom */
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -255,6 +256,7 @@ div.field input {
     left: 0;
     right: 0;
     height: auto;
+    overflow-y: visible;
     z-index: 10;
     flex-direction: row;
     justify-content: space-around;
@@ -1041,4 +1043,63 @@ label.button.upload {
 .card-current {
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Achievements: hexagonal badges, the white-silhouette icon, story paths, the unlock pop-up */
+.hex-badge {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  transition: transform 0.2s ease;
+}
+.hex-badge svg { position: absolute; inset: 0; }
+.hex-badge .hex-icon {
+  position: relative;
+  line-height: 1;
+  filter: brightness(0) invert(1); /* the emoji's shape, in white */
+}
+.hex-badge.locked .hex-icon { filter: brightness(0) invert(0.42); opacity: 0.75; }
+.hex-badge.earned:hover { transform: scale(1.08) rotate(-3deg); }
+.hex-shine { transform-origin: 50px 50px; animation: hex-turn 6s linear infinite; }
+@keyframes hex-turn { to { transform: rotate(360deg); } }
+.badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 0.75rem; }
+.badge-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  background: none; border: none; color: var(--text); padding: 0.4rem 0.2rem; font-size: 0.8rem; text-align: center; cursor: pointer;
+}
+.badge-tile .meter { width: 56px; }
+.story-path { display: flex; align-items: center; overflow-x: auto; padding: 0.2rem 0; }
+.story-link { width: 14px; height: 3px; border-radius: 2px; background: var(--outline); }
+.story-link.lit { background: var(--accent); }
+.story-next {
+  display: flex; flex-direction: column; gap: 0.35rem; text-align: left; width: 100%;
+  background: var(--surface-high); border: none; border-radius: 14px; padding: 0.8rem; color: var(--text); cursor: pointer;
+}
+.achievement-detail, .unlock { max-width: 420px; align-items: center; text-align: center; }
+.unlock-stage { position: relative; width: 200px; height: 200px; display: grid; place-items: center; margin: 0 auto; }
+.unlock-rays {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--ray) 55%, transparent) 0deg 12deg, transparent 12deg 30deg);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: hex-turn 9s linear infinite;
+}
+.unlock-pop { position: relative; animation: unlock-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes unlock-pop { from { transform: scale(0.2) rotate(-25deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.unlock-xp { color: var(--good); border: 1px solid var(--good); border-radius: 999px; padding: 0.2rem 0.9rem; font-size: 1.1rem; }
+@media (prefers-reduced-motion: reduce) {
+  .hex-shine, .unlock-rays, .unlock-pop { animation: none; }
+}
+.avatar {
+  display: inline-grid; place-items: center; flex: none; border-radius: 50%; overflow: hidden;
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: var(--bg); font-weight: 900;
+}
+.avatar.ring { box-shadow: 0 0 0 2px var(--accent); }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* A shorter nav label where the phone's bottom bar has no room */
+.label-short { display: none; }
+@media (max-width: 820px) {
+  .label-long { display: none; }
+  .label-short { display: inline; }
 }

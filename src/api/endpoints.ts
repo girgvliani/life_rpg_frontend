@@ -1,5 +1,6 @@
 import { ApiError, apiFetch } from "./client";
 import type {
+  Achievements,
   BabySteps,
   BabyStepsPlan,
   CharacterDay,
@@ -258,3 +259,21 @@ export const getBabySteps = () => apiFetch<BabySteps>("/money/baby-steps");
 
 export const saveBabySteps = (plan: Partial<BabyStepsPlan>) =>
   apiFetch<BabySteps>("/money/baby-steps", { method: "PUT", body: JSON.stringify(plan) });
+
+// ---- Achievements and profile photos
+
+export const getAchievements = () => apiFetch<Achievements>("/achievements");
+
+export const achievementsSeen = () => apiFetch<void>("/achievements/seen", { method: "POST" });
+
+/** null: back to the level title */
+export const wearTitle = (key: string | null) =>
+  apiFetch<{ title: string | null }>("/achievements/title", { method: "PUT", body: JSON.stringify({ key }) });
+
+export function uploadPhoto(photo: Blob) {
+  const form = new FormData();
+  form.append("photo", photo, "me.jpg");
+  return apiFetch<Profile>("/profile/photo", { method: "PUT", body: form });
+}
+
+export const deletePhoto = () => apiFetch<Profile>("/profile/photo", { method: "DELETE" });

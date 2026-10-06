@@ -188,6 +188,8 @@ export interface Profile {
   display_name: string | null;
   nickname: string | null;
   public_name: "name" | "nickname" | "code"; // what friends and the leaderboard see
+  photo_url?: string | null; // /photos/{token}.jpg on the API
+  title?: string | null; // the achievement title worn
   currency: string;
   timezone: string;
   pushup_target: number;
@@ -320,6 +322,8 @@ export interface FriendView {
   id: number;
   name: string;
   code: string;
+  photo_url?: string | null;
+  achievements?: { earned: number; total: number; badges: { key: string; icon: string; name: string; tier: number }[] };
   me?: boolean;
   shares: Record<string, boolean>;
   level?: { level: number; title: string; xp: number; week_xp: number };
@@ -350,6 +354,7 @@ export interface GlobalRow {
   xp: number;
   me: boolean;
   rank: number | null;
+  photo_url?: string | null;
 }
 
 export interface GlobalBoard {
@@ -360,7 +365,7 @@ export interface GlobalBoard {
 
 export interface FriendsOverview {
   code: string;
-  sharing: Record<"level" | "stats" | "streaks" | "goals" | "leaderboard", boolean>;
+  sharing: Record<"level" | "stats" | "streaks" | "goals" | "achievements" | "leaderboard", boolean>;
   friends: FriendView[];
   incoming: FriendRequest[];
   outgoing: FriendRequest[];
@@ -411,6 +416,7 @@ export interface Level {
   today: { reason: string; xp: number }[];
   sources: Record<string, number>;
   history: { date: string; xp: number }[];
+  new_achievements?: AchievementBrief[]; // earned since the unlock pop-up was last shown
 }
 
 // ---- Dave Ramsey's Baby Steps
@@ -451,4 +457,45 @@ export interface BabySteps {
     current: boolean;
     note: string;
   }[];
+}
+
+// ---- Achievements and stories
+
+export interface AchievementBrief {
+  key: string;
+  story: string;
+  icon: string;
+  name: string;
+  tier: number; // 1 Bronze … 4 Legend
+  xp: number;
+  title: string | null; // a title to wear once earned
+}
+
+export interface AchievementItem extends AchievementBrief {
+  how: string;
+  tier_name: string;
+  unit: string;
+  value: number;
+  target: number;
+  progress: number; // 0-1
+  earned_at: string | null;
+}
+
+export interface AchievementStory {
+  key: string;
+  name: string;
+  icon: string;
+  blurb: string;
+  chapters: string[]; // achievement keys, in order
+  done: number;
+  next: string | null;
+}
+
+export interface Achievements {
+  earned: number;
+  total: number;
+  xp: number;
+  title: string | null; // the key of the achievement whose title is worn
+  stories: AchievementStory[];
+  achievements: AchievementItem[];
 }

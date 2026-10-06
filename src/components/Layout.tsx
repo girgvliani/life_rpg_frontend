@@ -8,7 +8,7 @@ import { LevelCard } from "./LevelViews";
  * Every page. `sub`: listed under Plan in the desktop sidebar; on phones the bar has no room, so Plan
  * opens them (as in the phone app). `desktopOnly`: linked from other pages on phones.
  */
-const NAV: { to: string; icon: string; label: string; sub?: boolean; desktopOnly?: boolean }[] = [
+const NAV: { to: string; icon: string; label: string; short?: string; sub?: boolean; desktopOnly?: boolean }[] = [
   { to: "/", icon: "⚔️", label: "Character" },
   { to: "/streaks", icon: "🔥", label: "Streaks" },
   { to: "/check-in", icon: "📝", label: "Check-in" },
@@ -20,6 +20,7 @@ const NAV: { to: string; icon: string; label: string; sub?: boolean; desktopOnly
   { to: "/projects", icon: "💼", label: "Projects", sub: true },
   { to: "/skills", icon: "🌳", label: "Skills", sub: true },
   { to: "/money", icon: "💰", label: "Baby Steps", sub: true },
+  { to: "/achievements", icon: "🏆", label: "Achievements", short: "Badges" },
   { to: "/friends", icon: "👥", label: "Friends" },
   { to: "/questionnaire", icon: "🧭", label: "Questionnaire", desktopOnly: true },
   { to: "/browsing", icon: "🌐", label: "Browsing", desktopOnly: true },
@@ -47,7 +48,12 @@ export function Layout({ children }: { children: ReactNode }) {
         {NAV.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.to === "/"} className={({ isActive }) => `nav-link ${isActive ? "active" : ""} ${item.desktopOnly || item.sub ? "desktop-only" : ""} ${item.sub ? "nav-sub" : ""}`}>
             <span className="nav-icon" aria-hidden>{item.icon}</span>
-            {item.label}
+            {item.short ? (
+              <>
+                <span className="label-long">{item.label}</span>
+                <span className="label-short">{item.short}</span>
+              </>
+            ) : item.label}
           </NavLink>
         ))}
         <div className="sidebar-footer">

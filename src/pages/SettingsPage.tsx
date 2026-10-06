@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { createDevice, getDevices, getIncome, getProfile, revokeDevice, updateIncome, updateProfile } from "../api/endpoints";
+import { createDevice, deletePhoto, getDevices, getIncome, getProfile, revokeDevice, updateIncome, updateProfile, uploadPhoto } from "../api/endpoints";
+import { Avatar } from "../components/Badges";
 import type { Device, Income, Profile } from "../api/types";
 import { Choice } from "../components/forms";
 import { Card, Loaded, PageHeader } from "../components/ui";
@@ -16,7 +17,12 @@ export function SettingsPage() {
     <div className="stack">
       <PageHeader title="SETTINGS" subtitle="The formulas are shared; these targets are yours" />
       <Loaded load={data}>
-        {({ profile, income }) => <ProfileForm profile={profile} income={income} onSaved={data.reload} />}
+        {({ profile, income }) => (
+          <>
+            <PhotoCard profile={profile} onSaved={data.reload} />
+            <ProfileForm profile={profile} income={income} onSaved={data.reload} />
+          </>
+        )}
       </Loaded>
       <div className="grid grid-2" style={{ alignItems: "start" }}>
         <Devices />
@@ -182,6 +188,56 @@ function Devices() {
         </div>
       ))}
       {devices.data?.length === 0 && <span className="muted small">No devices yet. The phone app creates its own when you sign in there.</span>}
+    </Card>
+  );
+}
+
+/** A square crop of the chosen picture, 512 px JPEG (the server makes it 256 px and drops EXIF) */
+async function squarePhoto(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  const side = Math.min(bitmap.width, bitmap.height);
+  const out = Math.min(512, side);
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = out;
+  canvas.getContext("2d")!.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, out, out);
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Couldn't read that picture"))), "image/jpeg", 0.9));
+}
+
+function PhotoCard({ profile, onSaved }: { profile: Profile; onSaved: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  async function run(action: () => Promise<unknown>, done: string) {
+    setBusy(true);
+    setMessage(null);
+    try {
+      await action();
+      setMessage({ ok: true, text: done });
+      onSaved();
+    } catch (err) {
+      setMessage({ ok: false, text: `❌ ${errorText(err)}` });
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Card title="Profile photo">
+      <div className="row" style={{ gap: "1rem" }}>
+        <Avatar path={profile.photo_url} name={profile.display_name ?? profile.nickname ?? "?"} size={72} ring />
+        <div className="stack" style={{ gap: "0.4rem" }}>
+          <label className="button" style={busy ? { opacity: 0.6 } : undefined}>
+            {busy ? "Uploading…" : profile.photo_url ? "Change photo" : "Add a photo"}
+            <input type="file" accept="image/*" hidden disabled={busy}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) run(async () => uploadPhoto(await squarePhoto(file)), "✅ New photo");
+              }} />
+          </label>
+          {profile.photo_url && <button className="danger" disabled={busy} onClick={() => run(deletePhoto, "Photo removed")}>Remove</button>}
+        </div>
+      </div>
+      <span className="muted small">Friends and the leaderboard see it wherever they see your name; with “Just your code” it's hidden.</span>
+      {message && <span className={message.ok ? "form-success" : "form-error"}>{message.text}</span>}
     </Card>
   );
 }
