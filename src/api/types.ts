@@ -122,10 +122,20 @@ export interface StatResult {
   penalties: { name: string; points: number; note: string }[];
 }
 
+/** One of the six areas the stats are grouped into: the average of its stats that have data. */
+export interface CategoryResult {
+  key: string;
+  name: string;
+  score: number | null;
+  grade: string | null;
+  stats: string[]; // stat codes, in display order
+}
+
 export interface CharacterSheet {
   date: string;
-  overall: number | null;
+  overall: number | null; // average of the categories that have data
   overall_grade: string | null;
+  categories?: CategoryResult[]; // missing from a server older than the categories
   stats: StatResult[];
 }
 
@@ -133,6 +143,7 @@ export interface CharacterDay {
   date: string;
   overall: number | null;
   scores: Record<string, number | null>;
+  categories?: Record<string, number | null>;
 }
 
 export interface Streak {
