@@ -8,6 +8,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { AboutPage } from "./pages/AboutPage";
 import { BrowsingPage } from "./pages/BrowsingPage";
+import { CustomizePage } from "./pages/CustomizePage";
 import { FriendsPage } from "./pages/FriendsPage";
 import { QuestionnairePage } from "./pages/QuestionnairePage";
 import { CharacterPage } from "./pages/CharacterPage";
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="/questionnaire" element={<Protected><QuestionnairePage /></Protected>} />
             <Route path="/friends" element={<Protected><FriendsPage /></Protected>} />
             <Route path="/browsing" element={<Protected><BrowsingPage /></Protected>} />
+            <Route path="/customize" element={<Protected><CustomizePage /></Protected>} />
             <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
             {/* Old addresses */}
             <Route path="/todos" element={<Navigate to="/quests" replace />} />

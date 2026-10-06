@@ -1025,3 +1025,14 @@ label.button.upload {
 .site-row select {
   flex-shrink: 0;
 }
+
+/* Character page: today's tip */
+.tip-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+}

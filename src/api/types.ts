@@ -120,6 +120,7 @@ export interface StatResult {
   best_move: { name: string; points: number } | null;
   components: StatComponent[];
   penalties: { name: string; points: number; note: string }[];
+  off?: string[]; // parts the user turned off
 }
 
 /** One of the six areas the stats are grouped into: the average of its stats that have data. */
@@ -361,6 +362,32 @@ export interface FriendsOverview {
   friends: FriendView[];
   incoming: FriendRequest[];
   outgoing: FriendRequest[];
+}
+
+/** Customization, earned by level */
+export interface Unlock {
+  level: number;
+  key: string;
+  title: string;
+  description: string;
+  unlocked: boolean;
+  ready: boolean;
+}
+
+export interface Customization {
+  level: number;
+  ladder: Unlock[];
+  next: Unlock | null;
+  off: Record<string, string[]>; // stat code -> parts turned off
+  stats: { code: string; name: string; parts: { name: string; weight: number }[] }[];
+}
+
+export interface Tip {
+  when: "morning" | "evening";
+  title: string;
+  detail: string;
+  stat: string | null;
+  points: number;
 }
 
 export interface Device {

@@ -2,6 +2,7 @@ import { ApiError, apiFetch } from "./client";
 import type {
   CharacterDay,
   CharacterSheet,
+  Customization,
   DailyLog,
   DayMeals,
   Answers,
@@ -25,6 +26,7 @@ import type {
   SocialResult,
   Stats,
   Streaks,
+  Tip,
   Todo,
   User,
   WorkoutResult,
@@ -149,6 +151,17 @@ export const saveSiteGroups = (groups: Record<string, string>) =>
 /** Up to 31 days of totals per call, as the daily logs' "browser" section */
 export const saveBrowsingDays = (days: { date: string; browser: Record<string, number> }[]) =>
   apiFetch<unknown>("/daily-logs/batch?source=auto", { method: "POST", body: JSON.stringify({ days }) });
+
+// ---- Customization (earned by level) and daily tips
+
+export const getCustomization = () => apiFetch<Customization>("/customize");
+
+export const setPartOff = (stat: string, part: string, off: boolean) =>
+  apiFetch<Customization>("/customize/off", { method: "PUT", body: JSON.stringify({ stat, part, off }) });
+
+export const resetCustomization = () => apiFetch<Customization>("/customize", { method: "DELETE" });
+
+export const getTip = (when: "morning" | "evening") => apiFetch<Tip>(`/stats/tip?when=${when}`);
 
 export const getIncome = () => apiFetch<Income>("/income");
 

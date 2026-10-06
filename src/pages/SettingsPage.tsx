@@ -19,6 +19,10 @@ export function SettingsPage() {
       </Loaded>
       <div className="grid grid-2" style={{ alignItems: "start" }}>
         <Devices />
+        <Card title="🎛️ Customize your stats">
+          <span className="muted small">Turn parts of a stat off, and more with every level milestone.</span>
+          <button className="ghost" onClick={() => navigate("/customize")}>Open Customize</button>
+        </Card>
         <Card title="🌳 Skills">
           <span className="muted small">Your skills, their levels and XP have their own page now: add, rename or delete them there.</span>
           <button className="ghost" onClick={() => navigate("/skills")}>Open Skills</button>

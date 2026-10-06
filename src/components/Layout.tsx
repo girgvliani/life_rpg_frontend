@@ -22,6 +22,7 @@ const NAV: { to: string; icon: string; label: string; sub?: boolean; desktopOnly
   { to: "/friends", icon: "👥", label: "Friends" },
   { to: "/questionnaire", icon: "🧭", label: "Questionnaire", desktopOnly: true },
   { to: "/browsing", icon: "🌐", label: "Browsing", desktopOnly: true },
+  { to: "/customize", icon: "🎛️", label: "Customize", desktopOnly: true },
   { to: "/about", icon: "🪪", label: "About you" },
   { to: "/settings", icon: "⚙️", label: "Settings" },
 ];

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAttempts, getCharacter, getCharacterHistory, getProfile } from "../api/endpoints";
+import { getAttempts, getCharacter, getCharacterHistory, getProfile, getTip } from "../api/endpoints";
 import type { CategoryResult, CharacterDay, CharacterSheet, StatResult } from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import { useLevel } from "../context/LevelContext";
@@ -39,6 +39,7 @@ export function CharacterPage() {
   const [highlight, setHighlight] = useState<string | null>(null);
   // Until the questionnaire has been taken, the Character page asks for it
   const attempts = useLoad(() => getAttempts().catch(() => null));
+  const tip = useLoad(() => getTip(new Date().getHours() >= 17 ? "evening" : "morning").catch(() => null));
   const navigate = useNavigate();
 
   // A radar corner scrolls to its category's card and lights it up for a moment
@@ -81,6 +82,14 @@ export function CharacterPage() {
                 <span className="muted small">5 minutes on what matters to you and how you live now, for a plan of what to change first.</span>
                 <span style={{ color: "var(--accent)", fontWeight: 700 }}>Start ›</span>
               </button>
+            )}
+
+            {tip.data && (
+              <div className="tip-card">
+                <span className="section-title">{tip.data.when === "evening" ? "Before midnight" : "Today's tip"}</span>
+                <strong>{tip.data.title}</strong>
+                <span className="muted small">{tip.data.detail}</span>
+              </div>
             )}
 
             {level.level && <LevelHero level={level.level} />}
