@@ -32,11 +32,18 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
 }
 
 /** A progress bar. `tick` marks a point on it, e.g. the chart's A edge. */
-export function Meter({ value, max = 1, tick, tone }: { value: number; max?: number; tick?: number; tone?: "good" | "over" }) {
+export function Meter({ value, max = 1, tick, tone, color }: {
+  value: number;
+  max?: number;
+  tick?: number;
+  tone?: "good" | "over";
+  color?: string; // a stat's own color; the accent otherwise
+}) {
   const fraction = Math.max(0, Math.min(1, value / max));
+  const fill = color ? { background: `linear-gradient(90deg, color-mix(in srgb, ${color} 70%, transparent), ${color})` } : {};
   return (
     <div className="meter" role="progressbar" aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
-      <div className={`meter-fill ${tone ?? ""}`} style={{ width: `${fraction * 100}%` }} />
+      <div className={`meter-fill ${tone ?? ""}`} style={{ width: `${fraction * 100}%`, ...fill }} />
       {tick !== undefined && <div className="meter-tick" style={{ left: `${(tick / max) * 100}%` }} />}
     </div>
   );

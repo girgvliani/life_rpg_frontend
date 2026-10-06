@@ -15,6 +15,7 @@ export interface RadarPoint {
   score: number | null;
   grade: string | null;
   hint?: string;
+  color?: string; // dot and label; a stat's own color, white for categories
 }
 
 /**
@@ -102,7 +103,7 @@ export function RadarChart({
           return (
             <g key={p.key}>
               {brokeOut && <circle cx={x} cy={y} r={11} fill="var(--gold)" opacity={0.28} />}
-              <circle cx={x} cy={y} r={4.5} fill={brokeOut ? "var(--gold)" : "var(--accent)"} stroke="var(--bg)" strokeWidth={2} />
+              <circle cx={x} cy={y} r={4.5} fill={p.color ?? "var(--accent)"} stroke="var(--bg)" strokeWidth={2} />
               <circle cx={bx} cy={by} r={17} fill="var(--bg)" stroke={rankColor(p.grade)} strokeWidth={2} />
               <text x={bx} y={by} textAnchor="middle" dominantBaseline="central" fill={rankColor(p.grade)}
                 fontFamily="var(--font-display)" fontWeight={700} fontSize={(p.grade?.length ?? 1) > 2 ? 11 : 14}>
@@ -111,12 +112,12 @@ export function RadarChart({
               {p.icon ? (
                 <>
                   <text x={lx} y={ly - 10} textAnchor="middle" dominantBaseline="central" fontSize={20}>{p.icon}</text>
-                  <text x={lx} y={ly + 13} textAnchor="middle" dominantBaseline="central" fill="var(--text)" fontSize={11} fontWeight={800} letterSpacing={0.5}>
+                  <text x={lx} y={ly + 13} textAnchor="middle" dominantBaseline="central" fill={p.color ?? "var(--text)"} fontSize={11} fontWeight={800} letterSpacing={0.5}>
                     {p.label}
                   </text>
                 </>
               ) : (
-                <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fill="var(--text-muted)" fontSize={13} fontWeight={700} letterSpacing={1}>
+                <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fill={p.color ?? "var(--text-muted)"} fontSize={13} fontWeight={700} letterSpacing={1}>
                   {p.label}
                 </text>
               )}

@@ -14,10 +14,10 @@ export const RANKS = [
 
 export const CHART_EDGE = 85;
 
-/** Ordered by rank: the higher, the brighter; S tiers in gold. Ranks are always printed, so color only reinforces. */
+/** The phone app's rank colors (ui/Theme.kt): S tiers gold, A pink, B blue, C cyan, D orange, F red. */
 export function rankColor(letter: string | null | undefined): string {
   if (!letter) return "var(--outline)";
   if (letter.startsWith("S")) return "var(--gold)";
-  if (letter.startsWith("A")) return "#e879f9";
-  return { B: "#c79bf2", C: "#a98bd6", D: "#8c7cb6" }[letter] ?? "#6f6896";
+  if (letter.startsWith("A")) return "var(--accent)";
+  return { B: "#60a5fa", C: "#22d3ee", D: "#fb923c" }[letter] ?? "var(--bad)";
 }

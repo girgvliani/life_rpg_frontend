@@ -245,6 +245,22 @@ export interface DailyLog {
   updated_at: string | null;
 }
 
+/** One value a day can hold, from the server's catalog: how it's entered and which stats read it. */
+export interface LogField {
+  section: string;
+  key: string;
+  label: string;
+  unit: string;
+  kind: "decimal" | "whole" | "yesno" | "time";
+  source: "phone" | "checkin" | "both";
+  feeds: string[]; // stat codes
+}
+
+export interface FieldCatalog {
+  sections: { key: string; title: string }[];
+  fields: LogField[];
+}
+
 export interface Device {
   id: number;
   name: string;

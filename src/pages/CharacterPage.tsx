@@ -10,6 +10,7 @@ import { Card, Loaded, Meter, PageHeader } from "../components/ui";
 import { categoryBlurb, categoryIcon } from "../lib/categories";
 import { useLoad } from "../lib/load";
 import { CHART_EDGE, RANKS, rankColor } from "../lib/ranks";
+import { statColor } from "../lib/stats";
 
 const HISTORY_DAYS = 30;
 
@@ -53,12 +54,12 @@ export function CharacterPage() {
           ? categories.map((c) => {
               const best = bestMoveIn(statsOf(character, c));
               return {
-                key: c.key, label: c.name.toUpperCase(), name: c.name, icon: categoryIcon(c.key), score: c.score, grade: c.grade,
+                key: c.key, label: c.name.toUpperCase(), name: c.name, icon: categoryIcon(c.key), score: c.score, grade: c.grade, color: "var(--text)",
                 hint: best ? `💡 ${best.best_move!.name} (+${best.best_move!.points})` : undefined,
               };
             })
           : character.stats.map((s) => ({
-              key: s.code, label: s.code, name: s.name, score: s.score, grade: s.grade,
+              key: s.code, label: s.code, name: s.name, score: s.score, grade: s.grade, color: statColor(s.code),
               hint: s.best_move ? `💡 ${s.best_move.name} (+${s.best_move.points})` : undefined,
             }));
 
@@ -180,14 +181,16 @@ function StatRow({ stat, nested = false }: { stat: StatResult; nested?: boolean 
     <>
       <button className="link" style={{ textAlign: "left", padding: 0, color: "inherit" }} onClick={() => setOpen(!open)} aria-expanded={open}>
         <div className="row">
-          <span className="chip" style={{ minWidth: 48, justifyContent: "center" }}>{stat.code}</span>
+          <span className="chip stat-code" style={{ minWidth: 48, justifyContent: "center", color: statColor(stat.code), borderColor: statColor(stat.code) }}>
+            {stat.code}
+          </span>
           <strong className="grow">{stat.name}</strong>
           <span className="num" style={{ fontSize: "1.3rem", fontWeight: 800 }}>{stat.score ?? "–"}</span>
           <span className="rank" style={{ width: 34, color: rankColor(stat.grade) }}>{stat.grade ?? ""}</span>
           {nested && <span className="muted" aria-hidden>{open ? "▾" : "▸"}</span>}
         </div>
       </button>
-      <Meter value={stat.score ?? 0} max={100} tick={CHART_EDGE} />
+      <Meter value={stat.score ?? 0} max={100} tick={CHART_EDGE} color={statColor(stat.code)} />
       {stat.score === null ? (
         <span className="muted small">{stat.components[0]?.note ?? "No data yet"}</span>
       ) : (

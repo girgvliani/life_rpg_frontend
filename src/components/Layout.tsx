@@ -11,6 +11,7 @@ const NAV = [
   { to: "/meals", icon: "🍽️", label: "Meals" },
   { to: "/goals", icon: "🎯", label: "Goals" },
   { to: "/quests", icon: "📜", label: "Quests" },
+  { to: "/about", icon: "🪪", label: "About you" },
   { to: "/settings", icon: "⚙️", label: "Settings" },
 ];
 

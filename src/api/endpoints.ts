@@ -5,6 +5,7 @@ import type {
   DailyLog,
   DayMeals,
   Device,
+  FieldCatalog,
   Goal,
   Income,
   Level,
@@ -100,6 +101,16 @@ export const getDailyLog = (day: string) =>
 
 export const saveCheckIn = (day: string, sections: Record<string, Record<string, unknown>>) =>
   apiFetch<DailyLog>(`/daily-logs/${day}`, { method: "PUT", body: JSON.stringify(sections) });
+
+/** Every day with something logged between start and end */
+export const getDailyLogs = (start: string, end: string) => apiFetch<DailyLog[]>(`/daily-logs?start=${start}&end=${end}`);
+
+/** What each value is, how it's entered and which stats read it */
+export const getLogFields = () => apiFetch<FieldCatalog>("/daily-logs/fields");
+
+/** Remove one value: "manual" (your correction), "auto" (the phone's) or "all" */
+export const clearLogField = (day: string, section: string, field: string, source: "manual" | "auto" | "all") =>
+  apiFetch<void>(`/daily-logs/${day}?source=${source}&section=${section}&field=${field}`, { method: "DELETE" });
 
 export const clearCheckInField = (day: string, section: string, field: string) =>
   apiFetch<void>(`/daily-logs/${day}?source=manual&section=${section}&field=${field}`, { method: "DELETE" });
