@@ -4,6 +4,8 @@ import type {
   CharacterSheet,
   DailyLog,
   DayMeals,
+  Answers,
+  Attempt,
   Device,
   FieldCatalog,
   Goal,
@@ -15,6 +17,7 @@ import type {
   Milestone,
   Profile,
   Project,
+  Questionnaire,
   ShowerResult,
   SocialResult,
   Stats,
@@ -111,6 +114,15 @@ export const getLogFields = () => apiFetch<FieldCatalog>("/daily-logs/fields");
 /** Remove one value: "manual" (your correction), "auto" (the phone's) or "all" */
 export const clearLogField = (day: string, section: string, field: string, source: "manual" | "auto" | "all") =>
   apiFetch<void>(`/daily-logs/${day}?source=${source}&section=${section}&field=${field}`, { method: "DELETE" });
+
+/** The questions, answers to start from, and the latest results */
+export const getQuestionnaire = () => apiFetch<Questionnaire>("/questionnaire");
+
+/** Saves an attempt (every one is kept) and returns priorities, focus areas and plan */
+export const submitQuestionnaire = (answers: Answers) =>
+  apiFetch<Attempt>("/questionnaire", { method: "POST", body: JSON.stringify({ answers }) });
+
+export const getAttempts = () => apiFetch<Attempt[]>("/questionnaire/attempts");
 
 export const clearCheckInField = (day: string, section: string, field: string) =>
   apiFetch<void>(`/daily-logs/${day}?source=manual&section=${section}&field=${field}`, { method: "DELETE" });

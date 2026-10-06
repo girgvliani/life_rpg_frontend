@@ -261,6 +261,57 @@ export interface FieldCatalog {
   fields: LogField[];
 }
 
+/** The questionnaire, as the server sends it (both apps render the same questions). */
+export interface QQuestion {
+  id: string;
+  text: string;
+  kind: "single" | "multi" | "scale" | "number" | "rank" | "text";
+  options?: { value: string; label: string }[];
+  optional?: boolean;
+  max?: number;
+  min?: number;
+  unit?: string;
+  min_label?: string;
+  max_label?: string;
+}
+
+export interface QSection {
+  key: string;
+  title: string;
+  intro: string;
+  questions: QQuestion[];
+}
+
+export type Answers = Record<string, unknown>;
+
+export interface PlanStep {
+  id: string;
+  category: string;
+  category_name: string;
+  title: string;
+  why: string;
+  first_step: string;
+  goal: Record<string, unknown> | null; // a goal to create in one tap, as /goals takes it
+}
+
+export interface Attempt {
+  id: number;
+  created_at: string;
+  answers: Answers;
+  results: {
+    priorities: { key: string; name: string; level: number; tracked: boolean }[];
+    focus: string[];
+    plan: PlanStep[];
+    tips: string[];
+  };
+}
+
+export interface Questionnaire {
+  sections: QSection[];
+  prefill: Answers;
+  latest: Attempt | null;
+}
+
 export interface Device {
   id: number;
   name: string;

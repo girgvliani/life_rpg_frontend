@@ -11,6 +11,7 @@ const NAV = [
   { to: "/meals", icon: "🍽️", label: "Meals" },
   { to: "/goals", icon: "🎯", label: "Goals" },
   { to: "/quests", icon: "📜", label: "Quests" },
+  { to: "/questionnaire", icon: "🧭", label: "Questionnaire", desktopOnly: true },
   { to: "/about", icon: "🪪", label: "About you" },
   { to: "/settings", icon: "⚙️", label: "Settings" },
 ];
@@ -32,7 +33,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="brand">⚔️ LIFE RPG</div>
         {level && <LevelCard level={level} />}
         {NAV.map((item) => (
-          <NavLink key={item.to} to={item.to} end={item.to === "/"} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+          <NavLink key={item.to} to={item.to} end={item.to === "/"} className={({ isActive }) => `nav-link ${isActive ? "active" : ""} ${"desktopOnly" in item ? "desktop-only" : ""}`}>
             <span className="nav-icon" aria-hidden>{item.icon}</span>
             {item.label}
           </NavLink>

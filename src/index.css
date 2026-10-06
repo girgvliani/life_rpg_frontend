@@ -897,3 +897,54 @@ button.field-row-head {
 .field-editor {
   margin-top: 0.5rem;
 }
+
+/* Questionnaire: answer rows, the 1-5 scale, and the prompt on the Character page */
+button.option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  color: var(--text);
+  font-weight: 500;
+}
+button.option.on {
+  border-color: var(--accent);
+  color: var(--text);
+}
+button.option.on span {
+  color: var(--accent);
+}
+button.option:disabled {
+  color: var(--text-muted);
+}
+button.option.scale {
+  justify-content: center;
+  font-weight: 800;
+}
+button.option.scale.on {
+  color: var(--accent);
+  border-width: 2px;
+}
+button.questionnaire-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: left;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  color: var(--text);
+  font-weight: 400;
+}
+@media (max-width: 820px) {
+  .nav-link.desktop-only {
+    display: none;
+  }
+}

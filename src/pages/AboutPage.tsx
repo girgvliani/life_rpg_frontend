@@ -98,7 +98,11 @@ export function AboutPage() {
 
   return (
     <div className="stack">
-      <PageHeader title="ABOUT YOU" subtitle="Everything your stats are built from. Click any value to correct it." />
+      <PageHeader
+        title="ABOUT YOU"
+        subtitle="Everything your stats are built from. Click any value to correct it."
+        action={<button className="ghost" onClick={() => navigate("/questionnaire")}>🧭 Questionnaire</button>}
+      />
       <Loaded load={base}>
         {({ catalog, profile, income, names, recent }) => {
           const logged = new Set(recent.filter((d) => Object.keys(d.auto).length || Object.keys(d.manual).length).map((d) => d.date));

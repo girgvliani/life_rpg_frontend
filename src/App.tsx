@@ -7,6 +7,7 @@ import { Layout } from "./components/Layout";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { AboutPage } from "./pages/AboutPage";
+import { QuestionnairePage } from "./pages/QuestionnairePage";
 import { CharacterPage } from "./pages/CharacterPage";
 import { CheckInPage } from "./pages/CheckInPage";
 import { GoalsPage } from "./pages/GoalsPage";
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/goals" element={<Protected><GoalsPage /></Protected>} />
             <Route path="/quests" element={<Protected><QuestsPage /></Protected>} />
             <Route path="/about" element={<Protected><AboutPage /></Protected>} />
+            <Route path="/questionnaire" element={<Protected><QuestionnairePage /></Protected>} />
             <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
             {/* Old addresses */}
             <Route path="/todos" element={<Navigate to="/quests?tab=todos" replace />} />
