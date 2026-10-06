@@ -8,6 +8,8 @@ import type {
   Attempt,
   Device,
   FieldCatalog,
+  FriendView,
+  FriendsOverview,
   Goal,
   Income,
   Level,
@@ -80,6 +82,58 @@ export const completeTodo = (id: number) => apiFetch<Todo>(`/todos/${id}/complet
 export const getMilestones = () => apiFetch<Milestone[]>("/milestones");
 
 export const completeMilestone = (key: string) => apiFetch<Milestone>(`/milestones/${key}/complete`, { method: "POST" });
+
+export const updateProject = (id: number, body: Partial<Pick<Project, "name" | "value" | "deadline">>) =>
+  apiFetch<Project>(`/projects/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+
+export const deleteProject = (id: number) => apiFetch<void>(`/projects/${id}`, { method: "DELETE" });
+
+export const updateTodo = (id: number, body: Partial<Pick<Todo, "task" | "area_id" | "base_xp" | "deadline">>) =>
+  apiFetch<Todo>(`/todos/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+
+export const deleteTodo = (id: number) => apiFetch<void>(`/todos/${id}`, { method: "DELETE" });
+
+export const createMilestone = (description: string, xp_reward: number) =>
+  apiFetch<Milestone>("/milestones", { method: "POST", body: JSON.stringify({ description, xp_reward }) });
+
+export const updateMilestone = (key: string, description: string, xp_reward: number) =>
+  apiFetch<Milestone>(`/milestones/${key}`, { method: "PATCH", body: JSON.stringify({ description, xp_reward }) });
+
+export const deleteMilestone = (key: string) => apiFetch<void>(`/milestones/${key}`, { method: "DELETE" });
+
+/** "Category - Skill" groups it with the others in that category */
+export const createLifeArea = (name: string) =>
+  apiFetch<LifeArea>("/life-areas", { method: "POST", body: JSON.stringify({ name }) });
+
+export const renameLifeArea = (id: number, name: string) =>
+  apiFetch<LifeArea>(`/life-areas/${id}`, { method: "PATCH", body: JSON.stringify({ name }) });
+
+export const deleteLifeArea = (id: number) => apiFetch<void>(`/life-areas/${id}`, { method: "DELETE" });
+
+// ---- Friends
+
+export const getFriends = () => apiFetch<FriendsOverview>("/friends");
+
+/** Turn sharing switches on or off; applies to all friends */
+export const updateSharing = (body: Partial<FriendsOverview["sharing"]>) =>
+  apiFetch<FriendsOverview["sharing"]>("/friends/sharing", { method: "PATCH", body: JSON.stringify(body) });
+
+/** By friend code or email, whichever `who` looks like */
+export const addFriend = (who: string) =>
+  apiFetch<{ status: "pending" | "accepted"; name: string }>("/friends/requests", {
+    method: "POST",
+    body: JSON.stringify(who.includes("@") ? { email: who.trim() } : { code: who.trim() }),
+  });
+
+export const acceptFriend = (requestId: number) => apiFetch<unknown>(`/friends/requests/${requestId}/accept`, { method: "POST" });
+
+/** Decline a request to you, or take back one you sent */
+export const dropFriendRequest = (requestId: number) => apiFetch<void>(`/friends/requests/${requestId}`, { method: "DELETE" });
+
+export const removeFriend = (userId: number) => apiFetch<void>(`/friends/${userId}`, { method: "DELETE" });
+
+/** You (everything) and your friends (what they share) */
+export const getLeaderboard = () => apiFetch<FriendView[]>("/friends/leaderboard");
 
 export const getIncome = () => apiFetch<Income>("/income");
 

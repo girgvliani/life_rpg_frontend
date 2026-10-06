@@ -4,13 +4,22 @@ import { useAuth } from "../context/AuthContext";
 import { useLevel } from "../context/LevelContext";
 import { LevelCard } from "./LevelViews";
 
-const NAV = [
+/**
+ * Every page. `sub`: listed under Plan in the desktop sidebar; on phones the bar has no room, so Plan
+ * opens them (as in the phone app). `desktopOnly`: linked from other pages on phones.
+ */
+const NAV: { to: string; icon: string; label: string; sub?: boolean; desktopOnly?: boolean }[] = [
   { to: "/", icon: "⚔️", label: "Character" },
   { to: "/streaks", icon: "🔥", label: "Streaks" },
   { to: "/check-in", icon: "📝", label: "Check-in" },
   { to: "/meals", icon: "🍽️", label: "Meals" },
-  { to: "/goals", icon: "🎯", label: "Goals" },
-  { to: "/quests", icon: "📜", label: "Quests" },
+  { to: "/plan", icon: "🗺️", label: "Plan" },
+  { to: "/goals", icon: "🎯", label: "Goals", sub: true },
+  { to: "/quests", icon: "📜", label: "Quests", sub: true },
+  { to: "/milestones", icon: "🏔️", label: "Milestones", sub: true },
+  { to: "/projects", icon: "💼", label: "Projects", sub: true },
+  { to: "/skills", icon: "🌳", label: "Skills", sub: true },
+  { to: "/friends", icon: "👥", label: "Friends" },
   { to: "/questionnaire", icon: "🧭", label: "Questionnaire", desktopOnly: true },
   { to: "/about", icon: "🪪", label: "About you" },
   { to: "/settings", icon: "⚙️", label: "Settings" },
@@ -33,7 +42,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="brand">⚔️ LIFE RPG</div>
         {level && <LevelCard level={level} />}
         {NAV.map((item) => (
-          <NavLink key={item.to} to={item.to} end={item.to === "/"} className={({ isActive }) => `nav-link ${isActive ? "active" : ""} ${"desktopOnly" in item ? "desktop-only" : ""}`}>
+          <NavLink key={item.to} to={item.to} end={item.to === "/"} className={({ isActive }) => `nav-link ${isActive ? "active" : ""} ${item.desktopOnly || item.sub ? "desktop-only" : ""} ${item.sub ? "nav-sub" : ""}`}>
             <span className="nav-icon" aria-hidden>{item.icon}</span>
             {item.label}
           </NavLink>

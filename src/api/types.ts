@@ -312,6 +312,40 @@ export interface Questionnaire {
   latest: Attempt | null;
 }
 
+/** A person as friends see them: a section is missing when they don't share it */
+export interface FriendView {
+  id: number;
+  name: string;
+  code: string;
+  me?: boolean;
+  shares: Record<string, boolean>;
+  level?: { level: number; title: string; xp: number; week_xp: number };
+  stats?: {
+    total: number | null;
+    total_grade: string | null;
+    total_change: number | null;
+    categories: { key: string; name: string; score: number | null; grade: string | null; change: number | null }[];
+    stats: { code: string; name: string; score: number | null; grade: string | null }[];
+  };
+  streaks?: { key: string; name: string; emoji: string; current: number; best: number }[];
+  goals?: { title: string; progress: number | null; achieved: boolean; deadline: string | null }[];
+}
+
+export interface FriendRequest {
+  request_id: number;
+  id: number;
+  name: string;
+  code: string;
+}
+
+export interface FriendsOverview {
+  code: string;
+  sharing: Record<"level" | "stats" | "streaks" | "goals", boolean>;
+  friends: FriendView[];
+  incoming: FriendRequest[];
+  outgoing: FriendRequest[];
+}
+
 export interface Device {
   id: number;
   name: string;

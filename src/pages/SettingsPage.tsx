@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { createDevice, getDevices, getIncome, getLifeAreas, getProfile, revokeDevice, updateIncome, updateProfile } from "../api/endpoints";
+import { useNavigate } from "react-router-dom";
+import { createDevice, getDevices, getIncome, getProfile, revokeDevice, updateIncome, updateProfile } from "../api/endpoints";
 import type { Device, Income, Profile } from "../api/types";
-import { XpBar } from "../components/XpBar";
 import { Card, Loaded, PageHeader } from "../components/ui";
 import { errorText, useLoad } from "../lib/load";
 
 export function SettingsPage() {
+  const navigate = useNavigate();
   const data = useLoad(async () => {
     const [profile, income] = await Promise.all([getProfile(), getIncome()]);
     return { profile, income };
@@ -18,7 +19,10 @@ export function SettingsPage() {
       </Loaded>
       <div className="grid grid-2" style={{ alignItems: "start" }}>
         <Devices />
-        <Skills />
+        <Card title="🌳 Skills">
+          <span className="muted small">Your skills, their levels and XP have their own page now: add, rename or delete them there.</span>
+          <button className="ghost" onClick={() => navigate("/skills")}>Open Skills</button>
+        </Card>
       </div>
     </div>
   );
@@ -163,22 +167,6 @@ function Devices() {
         </div>
       ))}
       {devices.data?.length === 0 && <span className="muted small">No devices yet. The phone app creates its own when you sign in there.</span>}
-    </Card>
-  );
-}
-
-/** Life areas and their XP levels, from quests and habits. */
-function Skills() {
-  const areas = useLoad(getLifeAreas);
-  return (
-    <Card title="🎓 Skills">
-      {areas.data?.map((area) => (
-        <div key={area.id} className="list-row" style={{ alignItems: "flex-start", flexDirection: "column", gap: "0.3rem" }}>
-          <span className="small">{area.name}</span>
-          <XpBar level={area.level} xp={area.xp} />
-        </div>
-      ))}
-      {areas.error && <p className="form-error">{areas.error}</p>}
     </Card>
   );
 }

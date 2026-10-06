@@ -119,7 +119,7 @@ export function CharacterPage() {
 
             {byCategory ? (
               <>
-                <div className="section-title">Categories · click a stat for its breakdown</div>
+                <div className="section-title">Categories · click a stat for its page</div>
                 <div className="grid grid-2" style={{ alignItems: "start" }}>
                   {categories.map((c) => (
                     <CategoryCard key={c.key} category={c} stats={statsOf(character, c)} highlighted={highlight === c.key} />
@@ -128,7 +128,7 @@ export function CharacterPage() {
               </>
             ) : (
               <>
-                <div className="section-title">Stats · click for the breakdown</div>
+                <div className="section-title">Stats · click one for its page</div>
                 <div className="grid grid-2">
                   {character.stats.map((stat) => <StatRow key={stat.code} stat={stat} />)}
                 </div>
@@ -187,50 +187,27 @@ function CategoryCard({ category, stats, highlighted }: { category: CategoryResu
   );
 }
 
+/** A stat: its score and the biggest gain; opens the stat's own page */
 function StatRow({ stat, nested = false }: { stat: StatResult; nested?: boolean }) {
-  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const body = (
-    <>
-      <button className="link" style={{ textAlign: "left", padding: 0, color: "inherit" }} onClick={() => setOpen(!open)} aria-expanded={open}>
-        <div className="row">
-          <span className="chip stat-code" style={{ minWidth: 48, justifyContent: "center", color: statColor(stat.code), borderColor: statColor(stat.code) }}>
-            {stat.code}
-          </span>
-          <strong className="grow">{stat.name}</strong>
-          <span className="num" style={{ fontSize: "1.3rem", fontWeight: 800 }}>{stat.score ?? "–"}</span>
-          <span className="rank" style={{ width: 34, color: rankColor(stat.grade) }}>{stat.grade ?? ""}</span>
-          {nested && <span className="muted" aria-hidden>{open ? "▾" : "▸"}</span>}
-        </div>
-      </button>
+    <button className="link stat-link" onClick={() => navigate(`/stat/${stat.code}`)}>
+      <div className="row">
+        <span className="chip stat-code" style={{ minWidth: 48, justifyContent: "center", color: statColor(stat.code), borderColor: statColor(stat.code) }}>
+          {stat.code}
+        </span>
+        <strong className="grow">{stat.name}</strong>
+        <span className="num" style={{ fontSize: "1.3rem", fontWeight: 800 }}>{stat.score ?? "–"}</span>
+        <span className="rank" style={{ width: 34, color: rankColor(stat.grade) }}>{stat.grade ?? ""}</span>
+        <span style={{ color: "var(--accent)", fontWeight: 800 }} aria-hidden>›</span>
+      </div>
       <Meter value={stat.score ?? 0} max={100} tick={CHART_EDGE} color={statColor(stat.code)} />
       {stat.score === null ? (
         <span className="muted small">{stat.components[0]?.note ?? "No data yet"}</span>
       ) : (
-        !open && stat.best_move && <span className="muted small">💡 {stat.best_move.name} (up to +{stat.best_move.points})</span>
+        stat.best_move && <span className="muted small">💡 {stat.best_move.name} (up to +{stat.best_move.points})</span>
       )}
-      {open && (
-        <div className="stack" style={{ gap: "0.35rem" }}>
-          {stat.components.map((c) => (
-            <div key={c.name}>
-              <div className="row spread small">
-                <span>{c.name}</span>
-                <span className="num">{c.score === null ? "—" : `${(c.score * c.weight).toFixed(1)} / ${c.weight}`}</span>
-              </div>
-              <div className="muted small">{c.note}</div>
-            </div>
-          ))}
-          {stat.penalties.map((p) => (
-            <div key={p.name} className="row spread small" style={{ color: "var(--bad)" }}>
-              <span>⚠ {p.name} · {p.note}</span>
-              <span className="num">−{p.points}</span>
-            </div>
-          ))}
-          {stat.ceiling !== null && <span className="muted small">🔒 Max {stat.ceiling} today ({stat.ceiling_note})</span>}
-          {stat.confidence < 100 && <span className="muted small">{100 - stat.confidence}% of this stat has no data yet</span>}
-          {stat.best_move && <span className="small" style={{ color: "var(--accent)" }}>💡 Biggest gain: {stat.best_move.name} (up to +{stat.best_move.points})</span>}
-        </div>
-      )}
-    </>
+    </button>
   );
   return nested ? <div className="tile stat-row">{body}</div> : <Card className="stat-row">{body}</Card>;
 }

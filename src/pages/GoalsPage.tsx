@@ -1,9 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { createGoal, deleteGoal, getGoals, updateGoal } from "../api/endpoints";
 import type { Goal, GoalType } from "../api/types";
+import { DeadlinePicker } from "../components/forms";
 import { Card, Loaded, Meter, PageHeader } from "../components/ui";
 import { useLevel } from "../context/LevelContext";
+import { longDate } from "../lib/dates";
 import { errorText, useLoad } from "../lib/load";
+import { GOAL_PRESETS, type GoalPreset } from "../lib/plan";
 
 const TYPES: [GoalType, string][] = [
   ["weight", "⚖️ Weight"],
@@ -28,11 +31,18 @@ const hot = (level: number) => (level >= 8 ? "var(--bad)" : level >= 6 ? "#fb923
 
 const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
+function number(raw: string, label: string) {
+  const n = Number(raw.trim().replace(",", "."));
+  if (!raw.trim() || Number.isNaN(n)) throw new Error(`${label}: enter a number`);
+  return n;
+}
+
 export function GoalsPage() {
   const { refresh: refreshLevel } = useLevel();
   const loaded = useLoad(getGoals);
   // A reached goal is +250 XP, so every change refreshes the level too
   const goals = { ...loaded, reload: () => { loaded.reload(); refreshLevel(); } };
+  const [preset, setPreset] = useState<GoalPreset>({ label: "", type: "weight" });
   return (
     <div className="stack">
       <PageHeader title="GOALS" subtitle="Losing and gaining use the same progress: start → target" />
@@ -40,12 +50,22 @@ export function GoalsPage() {
         <Loaded load={goals}>
           {(list) => (
             <div className="stack">
-              {list.length === 0 && <Card><span className="muted">No goals yet. Add one on the right.</span></Card>}
+              {list.length === 0 && <Card><span className="muted">No goals yet. Pick a template on the right, or make your own.</span></Card>}
               {list.map((goal) => <GoalCard key={goal.id} goal={goal} onChanged={goals.reload} />)}
             </div>
           )}
         </Loaded>
-        <NewGoal onCreated={goals.reload} />
+        <div className="stack">
+          <Card title="Start from a template">
+            <div className="row wrap" style={{ gap: "0.4rem" }}>
+              {GOAL_PRESETS.map((p) => (
+                <button key={p.label} type="button" className={`chip ${preset.label === p.label ? "on" : ""}`} onClick={() => setPreset(p)}>{p.label}</button>
+              ))}
+            </div>
+          </Card>
+          {/* Keyed by template, so picking one refills the form */}
+          <NewGoal key={preset.label || "blank"} preset={preset} onCreated={goals.reload} />
+        </div>
       </div>
     </div>
   );
@@ -54,6 +74,7 @@ export function GoalsPage() {
 function GoalCard({ goal, onChanged }: { goal: Goal; onChanged: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [value, setValue] = useState("");
+  const [editing, setEditing] = useState(false);
   const progress = goal.progress ?? 0;
 
   async function change(body: Record<string, unknown>) {
@@ -61,8 +82,10 @@ function GoalCard({ goal, onChanged }: { goal: Goal; onChanged: () => void }) {
     try {
       await updateGoal(goal.id, body);
       onChanged();
+      return true;
     } catch (err) {
       setError(errorText(err));
+      return false;
     }
   }
 
@@ -87,7 +110,7 @@ function GoalCard({ goal, onChanged }: { goal: Goal; onChanged: () => void }) {
           {goal.achieved ? "🏆 Reached" : `${Math.round(progress * 100)}% · target ${fmt(goal.target_value)}`}
         </strong>
       </div>
-      {goal.deadline && <span className="muted small">Deadline {goal.deadline}</span>}
+      {goal.deadline && <span className="muted small">Deadline {longDate(goal.deadline)}</span>}
       <div className="row">
         <div className="grow">
           <div className="small" style={{ color: hot(goal.intensity), fontWeight: 700 }}>🔥 Goggins scale {goal.intensity}/10</div>
@@ -96,27 +119,68 @@ function GoalCard({ goal, onChanged }: { goal: Goal; onChanged: () => void }) {
         <button className="ghost" aria-label="Lower" disabled={goal.intensity <= 1} onClick={() => change({ intensity: goal.intensity - 1 })}>−</button>
         <button className="ghost" aria-label="Raise" disabled={goal.intensity >= 10} onClick={() => change({ intensity: goal.intensity + 1 })}>+</button>
       </div>
-      <div className="row">
-        {goal.type === "custom" && (
-          <>
-            <input placeholder="New value" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} style={{ width: 120 }} />
-            <button className="ghost" onClick={() => change({ current_value: Number(value) })} disabled={!value}>Update</button>
-          </>
-        )}
-        <span className="grow" />
-        <button className="danger" onClick={handleDelete}>Delete</button>
-      </div>
+      {editing ? (
+        <EditGoal goal={goal} onSave={async (body) => { if (await change(body)) setEditing(false); }} onCancel={() => setEditing(false)} />
+      ) : (
+        <div className="row wrap">
+          {goal.type === "custom" && (
+            <>
+              <input placeholder="New value" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} style={{ width: 120 }} />
+              <button className="ghost" onClick={() => change({ current_value: Number(value) })} disabled={!value}>Update</button>
+            </>
+          )}
+          <span className="grow" />
+          <button className="ghost" onClick={() => setEditing(true)}>Edit</button>
+          <button className="danger" onClick={handleDelete}>Delete</button>
+        </div>
+      )}
       {error && <p className="form-error">{error}</p>}
     </Card>
   );
 }
 
-function NewGoal({ onCreated }: { onCreated: () => void }) {
-  const [type, setType] = useState<GoalType>("weight");
-  const [target, setTarget] = useState("");
-  const [start, setStart] = useState("");
-  const [title, setTitle] = useState("");
-  const [unit, setUnit] = useState("");
+/** Rename, move the start or target, change the deadline. Progress follows on its own. */
+function EditGoal({ goal, onSave, onCancel }: { goal: Goal; onSave: (body: Record<string, unknown>) => void; onCancel: () => void }) {
+  const [title, setTitle] = useState(goal.title);
+  const [start, setStart] = useState(fmt(goal.start_value));
+  const [target, setTarget] = useState(fmt(goal.target_value));
+  const [deadline, setDeadline] = useState(goal.deadline ?? "");
+  const [error, setError] = useState<string | null>(null);
+  function submit(e: FormEvent) {
+    e.preventDefault();
+    try {
+      const body: Record<string, unknown> = { title: title.trim(), start_value: number(start, "Start"), target_value: number(target, "Target") };
+      if (!body.title) throw new Error("Title can't be empty");
+      if (deadline) body.deadline = deadline; // the server has no "clear deadline"
+      onSave(body);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+  return (
+    <form className="stack edit-box" style={{ gap: "0.6rem" }} onSubmit={submit}>
+      <label className="field">Title<input value={title} onChange={(e) => setTitle(e.target.value)} /></label>
+      <div className="row">
+        <label className="field grow">Start ({goal.unit})<input inputMode="decimal" value={start} onChange={(e) => setStart(e.target.value)} /></label>
+        <label className="field grow">Target ({goal.unit})<input inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} /></label>
+      </div>
+      <DeadlinePicker value={deadline} onChange={setDeadline} optional={!goal.deadline} />
+      <div className="row">
+        <button type="submit">Save</button>
+        <button type="button" className="ghost" onClick={onCancel}>Cancel</button>
+      </div>
+      {error && <p className="form-error">{error}</p>}
+    </form>
+  );
+}
+
+function NewGoal({ preset, onCreated }: { preset: GoalPreset; onCreated: () => void }) {
+  const [type, setType] = useState<GoalType>(preset.type as GoalType);
+  const [target, setTarget] = useState(preset.target ?? "");
+  const [start, setStart] = useState(preset.start ?? "");
+  const [title, setTitle] = useState(preset.title ?? "");
+  const [unit, setUnit] = useState(preset.unit ?? "");
+  const [deadline, setDeadline] = useState("");
   const [intensity, setIntensity] = useState(5);
   const [error, setError] = useState<string | null>(null);
   const custom = type === "custom";
@@ -125,14 +189,16 @@ function NewGoal({ onCreated }: { onCreated: () => void }) {
     e.preventDefault();
     setError(null);
     try {
-      const body: Record<string, unknown> = { type, target_value: Number(target), intensity };
-      if (start) body.start_value = Number(start);
+      const body: Record<string, unknown> = { type, target_value: number(target, "Target"), intensity };
+      if (start) body.start_value = number(start, "Start");
       if (custom) Object.assign(body, { title: title || undefined, unit: unit || undefined });
+      if (deadline) body.deadline = deadline;
       await createGoal(body);
       setTarget("");
       setStart("");
       setTitle("");
       setUnit("");
+      setDeadline("");
       setIntensity(5);
       onCreated();
     } catch (err) {
@@ -164,6 +230,7 @@ function NewGoal({ onCreated }: { onCreated: () => void }) {
           <input type="range" min={1} max={10} value={intensity} onChange={(e) => setIntensity(Number(e.target.value))} style={{ accentColor: "var(--accent)" }} />
           <span className="hint">{goggins(intensity)}</span>
         </label>
+        <DeadlinePicker value={deadline} onChange={setDeadline} optional />
         <button type="submit">Create goal</button>
         {error && <p className="form-error">{error}</p>}
       </form>

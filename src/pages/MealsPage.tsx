@@ -1,5 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
-import { deleteMeal, getMeals, logMeal, logMealPhoto } from "../api/endpoints";
+import { deleteMeal, getMeals, logMeal, logMealPhoto, updateMeal } from "../api/endpoints";
 import type { DayMeals, Meal } from "../api/types";
 import { Card, Loaded, Meter, PageHeader } from "../components/ui";
 import { useLevel } from "../context/LevelContext";
@@ -128,6 +128,7 @@ function QuickAdd({ onAdded }: { onAdded: () => void }) {
 
 function MealCard({ meal, onChanged }: { meal: Meal; onChanged: () => void }) {
   const [open, setOpen] = useState(false);
+  const [fixing, setFixing] = useState(false);
   const time = meal.eaten_at.slice(11, 16);
 
   async function handleDelete() {
@@ -157,12 +158,64 @@ function MealCard({ meal, onChanged }: { meal: Meal; onChanged: () => void }) {
               <span className="num">{Math.round(item.kcal)} kcal</span>
             </div>
           ))}
-          {meal.confidence !== null && <span className="muted small">AI's confidence: {Math.round(meal.confidence * 100)}%</span>}
-          <div className="row" style={{ justifyContent: "flex-end" }}>
-            <button className="danger" onClick={handleDelete}>Delete</button>
-          </div>
+          {meal.confidence !== null && (
+            <span className="muted small">AI's confidence: {Math.round(meal.confidence * 100)}%. Fix it if a portion looks wrong.</span>
+          )}
+          {fixing ? (
+            <FixMeal meal={meal} onDone={() => { setFixing(false); onChanged(); }} onCancel={() => setFixing(false)} />
+          ) : (
+            <div className="row" style={{ justifyContent: "flex-end" }}>
+              <button className="ghost" onClick={() => setFixing(true)}>Fix</button>
+              <button className="danger" onClick={handleDelete}>Delete</button>
+            </div>
+          )}
         </div>
       )}
     </Card>
+  );
+}
+
+/** Correct the calories and protein of each item the AI read; the meal's totals follow. */
+function FixMeal({ meal, onDone, onCancel }: { meal: Meal; onDone: () => void; onCancel: () => void }) {
+  const [kcal, setKcal] = useState(meal.items.map((i) => String(Math.round(i.kcal))));
+  const [protein, setProtein] = useState(meal.items.map((i) => String(Math.round(i.protein))));
+  const [error, setError] = useState<string | null>(null);
+  const set = (list: string[], update: (l: string[]) => void, i: number, value: string) => update(list.map((v, j) => (j === i ? value : v)));
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    try {
+      const items = meal.items.map((item, i) => {
+        const k = Number(kcal[i].replace(",", "."));
+        const p = Number(protein[i].replace(",", "."));
+        if (!kcal[i].trim() || Number.isNaN(k)) throw new Error(`${item.name}: calories must be a number`);
+        if (!protein[i].trim() || Number.isNaN(p)) throw new Error(`${item.name}: protein must be a number`);
+        return { ...item, kcal: k, protein: p };
+      });
+      await updateMeal(meal.id, { items });
+      onDone();
+    } catch (err) {
+      setError(errorText(err));
+    }
+  }
+
+  return (
+    <form className="stack edit-box" style={{ gap: "0.6rem" }} onSubmit={save}>
+      {meal.items.map((item, i) => (
+        <div key={i} className="stack" style={{ gap: "0.3rem" }}>
+          <strong className="small">{item.name}</strong>
+          <div className="row">
+            <label className="field grow">kcal<input inputMode="decimal" value={kcal[i]} onChange={(e) => set(kcal, setKcal, i, e.target.value)} /></label>
+            <label className="field grow">protein g<input inputMode="decimal" value={protein[i]} onChange={(e) => set(protein, setProtein, i, e.target.value)} /></label>
+          </div>
+        </div>
+      ))}
+      <div className="row">
+        <button type="submit">Save</button>
+        <button type="button" className="ghost" onClick={onCancel}>Cancel</button>
+      </div>
+      {error && <p className="form-error">{error}</p>}
+    </form>
   );
 }

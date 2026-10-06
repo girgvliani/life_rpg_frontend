@@ -134,7 +134,8 @@ button:focus-visible {
   outline-offset: 1px;
 }
 
-label.field {
+label.field,
+div.field {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -143,7 +144,8 @@ label.field {
 }
 
 label.field input,
-label.field select {
+label.field select,
+div.field input {
   color: var(--text);
 }
 
@@ -630,35 +632,6 @@ button.chip {
   }
 }
 
-/* ---- XP bar (life areas) ---- */
-
-.xp-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-}
-
-.xp-bar-track {
-  flex: 1;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--surface-high);
-  overflow: hidden;
-}
-
-.xp-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-deep), var(--accent));
-}
-
-.xp-bar-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
 /* ---- Level: the headline of the whole app ---- */
 
 .level-card {
@@ -947,4 +920,86 @@ button.questionnaire-prompt {
   .nav-link.desktop-only {
     display: none;
   }
+}
+
+/* Plan pages: an edit form inside a card, clickable overview cards, stat rows that open a page */
+.edit-box {
+  border-top: 1px solid var(--hairline);
+  padding-top: 0.75rem;
+}
+button.plan-card {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  background: none;
+  border: none;
+  color: inherit;
+  font-weight: inherit;
+}
+button.plan-card:hover .card {
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+button.stat-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+}
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  border: 2px solid;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+.nav-sub {
+  padding-left: 2.2rem;
+  font-size: 0.9rem;
+}
+
+/* Friends: the code, sharing switches, a friend's category grid */
+.friend-code {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 1.6rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+.friend-code-small {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+}
+.switch-row {
+  cursor: pointer;
+}
+.switch-row input[type="checkbox"] {
+  width: 2.6rem;
+  height: 1.4rem;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+.friend-categories {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+.lv-pill {
+  font-family: var(--font-display);
+  font-weight: 800;
+  padding: 0.25rem 0.6rem;
+  border-radius: 10px;
+  color: var(--bg);
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
 }
